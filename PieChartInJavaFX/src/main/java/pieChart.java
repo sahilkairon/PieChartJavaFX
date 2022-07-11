@@ -10,7 +10,11 @@ import javafx.scene.image.WritableImage;
 import javafx.stage.Stage;
 
 import javax.imageio.ImageIO;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.util.Base64;
 
 public class pieChart extends Application {
     @Override
@@ -39,21 +43,42 @@ public class pieChart extends Application {
 
 //        store PiChart as image to below location
 
-        saveAsPng(scene,"/Users/sahilkairon/Desktop/images.png");
+
+        System.out.println( saveAsPng(scene,"/Users/sahilkairon/Desktop/images.png"));
+
 
 
 
 
     }
 
-    public void saveAsPng(Scene scene, String path) {
+    public String saveAsPng(Scene scene, String path) {
         WritableImage image = scene.snapshot(null);
         File file = new File(path);
         try {
             ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+
+//            below code will return the base 64 encoded String of the jave FX image of PieChart
+
+            FileInputStream fis = new FileInputStream(file);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int read= 0;
+            while( (read = fis.read(buffer)) > -1){
+                baos.write(buffer, 0, read);
+            }
+            fis.close();
+            baos.close();
+            byte pgnBytes [] = baos.toByteArray();
+            Base64.Encoder base64_enc = Base64.getEncoder();
+            String base64_image = base64_enc.encodeToString(pgnBytes);
+
+            return base64_image;
         } catch (Exception e) {
             e.printStackTrace();
+            return e.getMessage();
         }
+
     }
     public static void main(String[] args) {
         Application.launch(args);
